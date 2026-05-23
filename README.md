@@ -15,14 +15,14 @@ Automated tmux session management for remote coding servers. Starts persistent, 
 
 ```
 ├── server/
-│   ├── install.sh                # Run once on each new server
+│   ├── install.sh                # Run once on each new server (cleans up old install first)
 │   ├── start_tmux_sessions.sh    # Starts sessions (called by systemd)
 │   ├── tmux-sessions.service     # systemd unit file
 │   └── sessions.conf.example     # Session config template
 └── client/
     ├── tmux-connect.sh           # Multi-server → session menu
     ├── tmux-claude.sh            # Shortcut: jump to 'claude' session
-    ├── tmux-gemini.sh            # Shortcut: jump to 'gemini' session
+    ├── tmux-agy.sh               # Shortcut: jump to 'agy' session
     └── servers.conf.example      # Server list template
 ```
 
@@ -53,7 +53,7 @@ Edit `server/sessions.conf` to define your sessions:
 ```
 # session_name | start_directory
 claude | ~/claude
-gemini | ~/gemini
+agy    | ~/agy
 ```
 
 > Add as many sessions as you need. Each gets a 3-pane layout in its directory.
@@ -65,11 +65,14 @@ bash server/install.sh
 ```
 
 The installer will:
+0. Clean up any existing installation (stop service, kill sessions, remove old scripts)
 1. Install tmux (if not already present)
 2. Create the session working directories
 3. Copy scripts to `/root/`
 4. Install and enable the systemd service
 5. Start all sessions immediately
+
+> Safe to re-run — the cleanup step tears down the previous install before setting up fresh.
 
 ### 4. Verify
 
@@ -81,7 +84,7 @@ systemctl status tmux-sessions.service
 Expected output:
 ```
 claude: 1 windows
-gemini: 1 windows
+agy: 1 windows
 ```
 
 ---
@@ -100,8 +103,8 @@ git clone https://github.com/pratikajmera/Tmux-Coding-Assistant-Setup.git
 mkdir -p ~/bin
 cp client/tmux-connect.sh  ~/bin/
 cp client/tmux-claude.sh   ~/bin/
-cp client/tmux-gemini.sh   ~/bin/
-chmod +x ~/bin/tmux-connect.sh ~/bin/tmux-claude.sh ~/bin/tmux-gemini.sh
+cp client/tmux-agy.sh      ~/bin/
+chmod +x ~/bin/tmux-connect.sh ~/bin/tmux-claude.sh ~/bin/tmux-agy.sh
 ```
 
 ### 3. Add `~/bin` to PATH
@@ -140,7 +143,7 @@ home-server | root | 192.168.1.100 | 100.x.x.x
 cat >> ~/.zshrc << 'EOF'
 alias tmux-connect='~/bin/tmux-connect.sh'
 alias tmux-claude='~/bin/tmux-claude.sh'
-alias tmux-gemini='~/bin/tmux-gemini.sh'
+alias tmux-agy='~/bin/tmux-agy.sh'
 EOF
 source ~/.zshrc
 ```
@@ -158,7 +161,7 @@ tmux-connect home-server  # pick session on a specific server
 ### Connect directly to a session
 ```bash
 tmux-claude             # → claude session (auto-picks server if only one)
-tmux-gemini             # → gemini session
+tmux-agy                # → agy (antigravity) session
 tmux-claude home-server # → claude on a named server
 ```
 

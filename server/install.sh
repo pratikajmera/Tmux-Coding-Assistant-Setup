@@ -3,6 +3,7 @@
 # Run as root on Ubuntu/Debian: bash install.sh
 #
 # What it does:
+#   0. Cleans up any previous installation (service, sessions, scripts)
 #   1. Installs tmux if not present
 #   2. Copies sessions.conf (or prompts to create one from example)
 #   3. Creates session working directories
@@ -32,6 +33,49 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 header "Tmux Coding Assistant — Server Setup"
+
+# ── 0. Cleanup previous installation ─────────────────────────────────────────
+
+header "Step 0: Cleaning up previous installation"
+
+# Stop and disable the systemd service if it exists
+if systemctl is-active --quiet tmux-sessions.service 2>/dev/null; then
+  systemctl stop tmux-sessions.service
+  ok "Stopped tmux-sessions.service"
+fi
+if systemctl is-enabled --quiet tmux-sessions.service 2>/dev/null; then
+  systemctl disable tmux-sessions.service
+  ok "Disabled tmux-sessions.service"
+fi
+
+# Remove old service file
+if [[ -f "$SERVICE_FILE" ]]; then
+  rm -f "$SERVICE_FILE"
+  systemctl daemon-reload
+  ok "Removed $SERVICE_FILE"
+fi
+
+# Kill existing tmux sessions defined in the active conf (or example as fallback)
+CLEANUP_CONF="${SESSIONS_CONF:-$SESSIONS_EXAMPLE}"
+if [[ -f "$CLEANUP_CONF" ]]; then
+  while IFS='|' read -r name dir || [[ -n "$name" ]]; do
+    [[ "$name" =~ ^[[:space:]]*# ]] && continue
+    [[ -z "${name// }" ]] && continue
+    name=$(echo "$name" | xargs)
+    if tmux has-session -t "$name" 2>/dev/null; then
+      tmux kill-session -t "$name"
+      ok "Killed tmux session '$name'"
+    fi
+  done < "$CLEANUP_CONF"
+fi
+
+# Remove old installed scripts
+for f in start_tmux_sessions.sh sessions.conf; do
+  if [[ -f "$INSTALL_DIR/$f" ]]; then
+    rm -f "$INSTALL_DIR/$f"
+    ok "Removed $INSTALL_DIR/$f"
+  fi
+done
 
 # ── 1. Install tmux ──────────────────────────────────────────────────────────
 

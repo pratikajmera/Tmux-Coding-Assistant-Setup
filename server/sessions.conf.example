@@ -4,4 +4,4 @@
 # Copy this file to sessions.conf and edit as needed.
 
 claude | ~/claude
-gemini | ~/gemini
+agy    | ~/agy
