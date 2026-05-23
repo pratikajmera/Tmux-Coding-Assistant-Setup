@@ -1,3 +1,4 @@
 # Ignore real config files with sensitive info (IPs, usernames)
 client/tmux-servers.conf
 server/tmux-sessions.conf
+claude-resume.md
