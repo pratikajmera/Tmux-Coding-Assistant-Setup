@@ -3,7 +3,7 @@
 # - local_ip:     used when on the same LAN (leave blank to always use Tailscale)
 # - tailscale_ip: used as fallback when local is unreachable (leave blank if not using Tailscale)
 # Lines starting with # are ignored. Whitespace around | is trimmed.
-# Copy this file to servers.conf and fill in your real values.
+# Copy this file to tmux-servers.conf and fill in your real values.
 
 home-server  | root | 192.168.1.100 | 100.x.x.x
 work-server  | root | 10.0.0.50     |

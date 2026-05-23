@@ -1,7 +1,7 @@
 #!/bin/bash
-# start_tmux_sessions.sh
-# Creates tmux sessions with a 3-pane layout as defined in sessions.conf.
-# Installed to /root/ by install.sh. Sessions are skipped if they already exist.
+# tmux-start-sessions.sh
+# Creates tmux sessions with a 3-pane layout as defined in tmux-sessions.conf.
+# Installed to /root/ by tmux-install.sh. Sessions are skipped if they already exist.
 #
 # Layout per session:
 # ┌────────┬────────┐
@@ -14,11 +14,11 @@
 # └────────┴────────┘
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SESSIONS_CONF="$SCRIPT_DIR/sessions.conf"
+SESSIONS_CONF="$SCRIPT_DIR/tmux-sessions.conf"
 
-# Fall back to example config if sessions.conf doesn't exist
+# Fall back to example config if tmux-sessions.conf doesn't exist
 if [[ ! -f "$SESSIONS_CONF" ]]; then
-  SESSIONS_CONF="$SCRIPT_DIR/sessions.conf.example"
+  SESSIONS_CONF="$SCRIPT_DIR/tmux-sessions.conf.example"
 fi
 
 create_session() {

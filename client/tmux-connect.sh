@@ -6,18 +6,18 @@
 #   tmux-connect.sh <server-name>          → pick session on named server
 #   tmux-connect.sh <server-name> <session>→ connect directly
 #
-# Requires: ~/bin/servers.conf  (copy from servers.conf.example and fill in)
+# Requires: ~/bin/tmux-servers.conf  (copy from tmux-servers.conf.example and fill in)
 
-SERVERS_CONF="${HOME}/bin/servers.conf"
+SERVERS_CONF="${HOME}/bin/tmux-servers.conf"
 
 # ── Load servers ──────────────────────────────────────────────────────────────
 
 load_servers() {
   if [[ ! -f "$SERVERS_CONF" ]]; then
-    echo "Error: servers.conf not found at $SERVERS_CONF"
+    echo "Error: tmux-servers.conf not found at $SERVERS_CONF"
     echo ""
     echo "Create it by copying the example from the repo:"
-    echo "  cp servers.conf.example ~/bin/servers.conf"
+    echo "  cp tmux-servers.conf.example ~/bin/tmux-servers.conf"
     echo "Then fill in your server IPs."
     exit 1
   fi

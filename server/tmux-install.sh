@@ -1,21 +1,21 @@
 #!/bin/bash
-# install.sh — Set up Tmux Coding Assistant on a new server
-# Run as root on Ubuntu/Debian: bash install.sh
+# tmux-install.sh — Set up Tmux Coding Assistant on a new server
+# Run as root on Ubuntu/Debian: bash tmux-install.sh
 #
 # What it does:
 #   0. Cleans up any previous installation (service, sessions, scripts)
 #   1. Installs tmux if not present
-#   2. Copies sessions.conf (or prompts to create one from example)
+#   2. Copies tmux-sessions.conf (or prompts to create one from example)
 #   3. Creates session working directories
-#   4. Installs start_tmux_sessions.sh to /root/
+#   4. Installs tmux-start-sessions.sh to /root/
 #   5. Installs and enables the systemd service
 #   6. Starts the service (creates sessions immediately)
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SESSIONS_CONF="$SCRIPT_DIR/sessions.conf"
-SESSIONS_EXAMPLE="$SCRIPT_DIR/sessions.conf.example"
+SESSIONS_CONF="$SCRIPT_DIR/tmux-sessions.conf"
+SESSIONS_EXAMPLE="$SCRIPT_DIR/tmux-sessions.conf.example"
 INSTALL_DIR="/root"
 SERVICE_FILE="/etc/systemd/system/tmux-sessions.service"
 
@@ -69,8 +69,8 @@ if [[ -f "$CLEANUP_CONF" ]]; then
   done < "$CLEANUP_CONF"
 fi
 
-# Remove old installed scripts
-for f in start_tmux_sessions.sh sessions.conf; do
+# Remove old installed scripts (including legacy names from previous installs)
+for f in tmux-start-sessions.sh tmux-sessions.conf start_tmux_sessions.sh sessions.conf; do
   if [[ -f "$INSTALL_DIR/$f" ]]; then
     rm -f "$INSTALL_DIR/$f"
     ok "Removed $INSTALL_DIR/$f"
@@ -89,14 +89,14 @@ else
   ok "tmux installed ($(tmux -V))"
 fi
 
-# ── 2. Resolve sessions.conf ─────────────────────────────────────────────────
+# ── 2. Resolve tmux-sessions.conf ────────────────────────────────────────────
 
 header "Step 2: Session configuration"
 if [[ ! -f "$SESSIONS_CONF" ]]; then
-  info "sessions.conf not found — copying from example..."
+  info "tmux-sessions.conf not found — copying from example..."
   cp "$SESSIONS_EXAMPLE" "$SESSIONS_CONF"
   echo ""
-  echo "  sessions.conf has been created at:"
+  echo "  tmux-sessions.conf has been created at:"
   echo "  $SESSIONS_CONF"
   echo ""
   echo "  Edit it to customise session names and directories, then re-run:"
@@ -121,11 +121,11 @@ done < "$SESSIONS_CONF"
 # ── 4. Install scripts ───────────────────────────────────────────────────────
 
 header "Step 4: Installing scripts"
-cp "$SCRIPT_DIR/start_tmux_sessions.sh" "$INSTALL_DIR/start_tmux_sessions.sh"
-cp "$SESSIONS_CONF" "$INSTALL_DIR/sessions.conf"
-chmod +x "$INSTALL_DIR/start_tmux_sessions.sh"
-ok "Installed start_tmux_sessions.sh → $INSTALL_DIR/"
-ok "Installed sessions.conf → $INSTALL_DIR/"
+cp "$SCRIPT_DIR/tmux-start-sessions.sh" "$INSTALL_DIR/tmux-start-sessions.sh"
+cp "$SESSIONS_CONF" "$INSTALL_DIR/tmux-sessions.conf"
+chmod +x "$INSTALL_DIR/tmux-start-sessions.sh"
+ok "Installed tmux-start-sessions.sh → $INSTALL_DIR/"
+ok "Installed tmux-sessions.conf → $INSTALL_DIR/"
 
 # ── 5. Install systemd service ───────────────────────────────────────────────
 

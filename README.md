@@ -15,15 +15,15 @@ Automated tmux session management for remote coding servers. Starts persistent, 
 
 ```
 ├── server/
-│   ├── install.sh                # Run once on each new server (cleans up old install first)
-│   ├── start_tmux_sessions.sh    # Starts sessions (called by systemd)
-│   ├── tmux-sessions.service     # systemd unit file
-│   └── sessions.conf.example     # Session config template
+│   ├── tmux-install.sh              # Run once on each new server (cleans up old install first)
+│   ├── tmux-start-sessions.sh       # Starts sessions (called by systemd)
+│   ├── tmux-sessions.service        # systemd unit file
+│   └── tmux-sessions.conf.example   # Session config template
 └── client/
-    ├── tmux-connect.sh           # Multi-server → session menu
-    ├── tmux-claude.sh            # Shortcut: jump to 'claude' session
-    ├── tmux-agy.sh               # Shortcut: jump to 'agy' session
-    └── servers.conf.example      # Server list template
+    ├── tmux-connect.sh              # Multi-server → session menu
+    ├── tmux-claude.sh               # Shortcut: jump to 'claude' session
+    ├── tmux-agy.sh                  # Shortcut: jump to 'agy' session
+    └── tmux-servers.conf.example    # Server list template
 ```
 
 ---
@@ -45,10 +45,10 @@ cd Tmux-Coding-Assistant-Setup
 ### 2. Configure sessions
 
 ```bash
-cp server/sessions.conf.example server/sessions.conf
+cp server/tmux-sessions.conf.example server/tmux-sessions.conf
 ```
 
-Edit `server/sessions.conf` to define your sessions:
+Edit `server/tmux-sessions.conf` to define your sessions:
 
 ```
 # session_name | start_directory
@@ -61,7 +61,7 @@ agy    | ~/agy
 ### 3. Run the installer
 
 ```bash
-bash server/install.sh
+bash server/tmux-install.sh
 ```
 
 The installer will:
@@ -122,10 +122,10 @@ echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
 ### 4. Configure servers
 
 ```bash
-cp client/servers.conf.example ~/bin/servers.conf
+cp client/tmux-servers.conf.example ~/bin/tmux-servers.conf
 ```
 
-Edit `~/bin/servers.conf` with your server details:
+Edit `~/bin/tmux-servers.conf` with your server details:
 
 ```
 # display_name | user | local_ip | tailscale_ip
@@ -135,7 +135,7 @@ home-server | root | 192.168.1.100 | 100.x.x.x
 - **local_ip** — used when on the same LAN (leave blank to always use Tailscale)
 - **tailscale_ip** — fallback when local is unreachable (leave blank if not using Tailscale)
 
-> `servers.conf` is gitignored — never committed, always local.
+> `tmux-servers.conf` is gitignored — never committed, always local.
 
 ### 5. (Optional) Add shell aliases
 
@@ -179,7 +179,7 @@ tmux-claude home-server # → claude on a named server
 
 ## Adding a New Session
 
-1. Edit `/root/sessions.conf` on the server
+1. Edit `/root/tmux-sessions.conf` on the server
 2. Add a new line: `my-session | ~/my-project`
 3. Restart the service:
    ```bash
@@ -188,7 +188,7 @@ tmux-claude home-server # → claude on a named server
 
 ## Adding a New Server (client side)
 
-Add a line to `~/bin/servers.conf`:
+Add a line to `~/bin/tmux-servers.conf`:
 ```
 new-server | root | 10.0.0.x | 100.x.x.x
 ```
@@ -206,15 +206,15 @@ SSH into the new server and repeat the [Server Setup](#server-setup) steps.
 ```
 systemd boot
     └── tmux-sessions.service (Type=oneshot, RemainAfterExit=yes)
-            └── /root/start_tmux_sessions.sh
-                    └── reads /root/sessions.conf
+            └── /root/tmux-start-sessions.sh
+                    └── reads /root/tmux-sessions.conf
                             └── tmux new-session -d  (one per entry)
                                     └── 3-pane layout in configured directory
 ```
 
 ```
 tmux-connect.sh (client)
-    ├── reads ~/bin/servers.conf
+    ├── reads ~/bin/tmux-servers.conf
     ├── shows server menu (if >1 server)
     ├── ping local_ip → use it if reachable, else try tailscale_ip
     ├── ssh into server → tmux list-sessions
@@ -245,4 +245,4 @@ tailscale ip                  # verify your Tailscale IP
 ```
 
 **Wrong directory on pane start:**  
-Check `/root/sessions.conf` on the server — paths must exist or the script creates them.
+Check `/root/tmux-sessions.conf` on the server — paths must exist or the script creates them.

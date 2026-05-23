@@ -7,7 +7,7 @@ Type=oneshot
 RemainAfterExit=yes
 User=root
 Environment="HOME=/root"
-ExecStart=/bin/bash /root/start_tmux_sessions.sh
+ExecStart=/bin/bash /root/tmux-start-sessions.sh
 
 [Install]
 WantedBy=multi-user.target
