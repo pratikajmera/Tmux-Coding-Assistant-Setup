@@ -22,8 +22,11 @@ load_servers() {
     exit 1
   fi
 
-  # Read non-comment, non-empty lines into array
-  mapfile -t SERVER_LINES < <(grep -v '^\s*#' "$SERVERS_CONF" | grep -v '^\s*$')
+  # Read non-comment, non-empty lines into array (bash 3.2 compatible — no mapfile)
+  SERVER_LINES=()
+  while IFS= read -r line; do
+    SERVER_LINES+=("$line")
+  done < <(grep -v '^\s*#' "$SERVERS_CONF" | grep -v '^\s*$')
 
   if [[ ${#SERVER_LINES[@]} -eq 0 ]]; then
     echo "No servers found in $SERVERS_CONF"
