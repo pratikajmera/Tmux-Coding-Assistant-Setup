@@ -1,0 +1,13 @@
+[Unit]
+Description=Start persistent tmux sessions
+After=network.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=root
+Environment="HOME=/root"
+ExecStart=/bin/bash /root/start_tmux_sessions.sh
+
+[Install]
+WantedBy=multi-user.target

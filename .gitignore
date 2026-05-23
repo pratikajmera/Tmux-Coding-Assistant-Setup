@@ -1,0 +1,3 @@
+# Ignore real config files with sensitive info (IPs, usernames)
+client/servers.conf
+server/sessions.conf

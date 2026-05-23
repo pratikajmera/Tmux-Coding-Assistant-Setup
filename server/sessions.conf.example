@@ -1,0 +1,7 @@
+# Tmux Session Configuration
+# FORMAT: session_name | start_directory
+# Lines starting with # are ignored. Whitespace around | is trimmed.
+# Copy this file to sessions.conf and edit as needed.
+
+claude | ~/claude
+gemini | ~/gemini
