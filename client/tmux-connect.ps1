@@ -1,4 +1,4 @@
-# tmux-connect.ps1 — Connect to a tmux session on a remote server
+# tmux-connect.ps1 -- Connect to a tmux session on a remote server
 #
 # Usage:
 #   tmux-connect.ps1                              -> pick server, then session
@@ -15,7 +15,7 @@ param(
 
 $SERVERS_CONF = "$HOME\bin\tmux-servers.conf"
 
-# ── Load servers ───────────────────────────────────────────────────────────────
+# -- Load servers --------------------------------------------------------------
 
 function Load-Servers {
     if (-not (Test-Path $SERVERS_CONF)) {
@@ -38,7 +38,7 @@ function Load-Servers {
     return @($lines)   # force array even for a single line
 }
 
-# ── Parse a config line into a hashtable ──────────────────────────────────────
+# -- Parse a config line into a hashtable --------------------------------------
 
 function Parse-ServerLine {
     param([string]$line)
@@ -51,7 +51,7 @@ function Parse-ServerLine {
     }
 }
 
-# ── Pick / resolve a server ───────────────────────────────────────────────────
+# -- Pick / resolve a server ---------------------------------------------------
 
 function Pick-Server {
     param([string]$filter)
@@ -68,14 +68,14 @@ function Pick-Server {
         exit 1
     }
 
-    # Only one server — use it silently
+    # Only one server -- use it silently
     if ($lines.Count -eq 1) {
         return Parse-ServerLine $lines[0]
     }
 
-    # Multiple servers — show menu
+    # Multiple servers -- show menu
     Write-Host "Select a server:"
-    Write-Host "────────────────"
+    Write-Host "----------------"
     for ($i = 0; $i -lt $lines.Count; $i++) {
         $name = (Parse-ServerLine $lines[$i]).Name
         Write-Host "  [$($i+1)] $name"
@@ -92,8 +92,8 @@ function Pick-Server {
     return Parse-ServerLine $lines[$idx]
 }
 
-# ── Resolve IP: local preferred, Tailscale as fallback ────────────────────────
-# Uses ping (built into all Windows versions) — avoids PS-version-specific cmdlets.
+# -- Resolve IP: local preferred, Tailscale as fallback ------------------------
+# Uses ping (built into all Windows versions) -- avoids PS-version-specific cmdlets.
 
 function Resolve-ServerIp {
     param($server)
@@ -112,7 +112,7 @@ function Resolve-ServerIp {
     }
 
     if ($server.LocalIp -ne "") {
-        # No ping response but local IP is all we have — try anyway
+        # No ping response but local IP is all we have -- try anyway
         Write-Host "[local -> $($server.Name)]"
         return $server.LocalIp
     }
@@ -121,7 +121,7 @@ function Resolve-ServerIp {
     exit 1
 }
 
-# ── Pick a session ─────────────────────────────────────────────────────────────
+# -- Pick a session ------------------------------------------------------------
 
 function Pick-Session {
     param([string]$filter, [string]$user, [string]$ip)
@@ -132,7 +132,7 @@ function Pick-Session {
     $raw = ssh "$user@$ip" "tmux list-sessions -F '#{session_name}' 2>/dev/null"
 
     if (-not $raw) {
-        Write-Host "No tmux sessions found on $($server.Name)."
+        Write-Host "No tmux sessions found on server."
         exit 1
     }
 
@@ -141,7 +141,7 @@ function Pick-Session {
 
     Write-Host ""
     Write-Host "Available sessions:"
-    Write-Host "───────────────────"
+    Write-Host "-------------------"
     for ($i = 0; $i -lt $sessionList.Count; $i++) {
         Write-Host "  [$($i+1)] $($sessionList[$i])"
     }
@@ -157,12 +157,12 @@ function Pick-Session {
     return $sessionList[$idx]
 }
 
-# ── Main ───────────────────────────────────────────────────────────────────────
+# -- Main ----------------------------------------------------------------------
 
 $server  = Pick-Server $ServerArg
 $ip      = Resolve-ServerIp $server
 $session = Pick-Session $SessionArg $server.User $ip
 
 Write-Host "Connecting to '$session'..."
-ssh -t "$($server.User)@$ip" `
-    "tmux attach-session -t '$session' 2>/dev/null || (echo ""Session '$session' not found — creating it...""; tmux new-session -s '$session')"
+$remoteCmd = "tmux attach-session -t '$session' 2>/dev/null || (echo 'Session not found - creating it...'; tmux new-session -s '$session')"
+ssh -t "$($server.User)@$ip" $remoteCmd
