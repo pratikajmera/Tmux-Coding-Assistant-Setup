@@ -70,7 +70,7 @@ if [[ -f "$CLEANUP_CONF" ]]; then
 fi
 
 # Remove old installed scripts (including legacy names from previous installs)
-for f in tmux-start-sessions.sh tmux-sessions.conf start_tmux_sessions.sh sessions.conf; do
+for f in tmux-start-sessions.sh tmux-sessions.conf start_tmux_sessions.sh; do
   if [[ -f "$INSTALL_DIR/$f" ]]; then
     rm -f "$INSTALL_DIR/$f"
     ok "Removed $INSTALL_DIR/$f"
