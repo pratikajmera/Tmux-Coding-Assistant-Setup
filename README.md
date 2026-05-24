@@ -31,6 +31,54 @@ Automated tmux session management for remote coding servers. Starts persistent, 
 
 ---
 
+## Prerequisites — SSH Key Access
+
+The client scripts connect to your server over SSH using key-based authentication. **Password prompts are not supported** — you must have passwordless SSH access set up before using these scripts.
+
+### 1. Generate an SSH key pair (if you don't have one)
+
+**macOS / Linux:**
+```bash
+ssh-keygen -t ed25519 -C "your-comment"
+# Accept the default path (~/.ssh/id_ed25519) or specify one
+# Set a passphrase or leave blank for fully passwordless access
+```
+
+**Windows (PowerShell):**
+```powershell
+ssh-keygen -t ed25519 -C "your-comment"
+# Key is saved to C:\Users\<you>\.ssh\id_ed25519 by default
+```
+
+### 2. Copy your public key to the server
+
+**macOS / Linux:**
+```bash
+ssh-copy-id root@<server-ip>
+# Enter your server password once — never again after this
+```
+
+**Windows** (`ssh-copy-id` is not built in — use this one-liner instead):
+```powershell
+type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh root@<server-ip> "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+# Enter your server password once when prompted
+```
+
+### 3. Test passwordless access
+
+```bash
+ssh root@<server-ip>
+# Should log in immediately with no password prompt
+```
+
+If it still asks for a password, check that `~/.ssh/authorized_keys` on the server contains your public key and has permissions `600`.
+
+### 4. Repeat for each server
+
+Run steps 2–3 for every server you add to `tmux-servers.conf`.
+
+---
+
 ## Server Setup
 
 ### Prerequisites
