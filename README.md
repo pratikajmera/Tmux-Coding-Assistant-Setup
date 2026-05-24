@@ -20,10 +20,13 @@ Automated tmux session management for remote coding servers. Starts persistent, 
 │   ├── tmux-sessions.service        # systemd unit file
 │   └── tmux-sessions.conf.example   # Session config template
 └── client/
-    ├── tmux-connect.sh              # Multi-server → session menu
-    ├── tmux-claude.sh               # Shortcut: jump to 'claude' session
-    ├── tmux-agy.sh                  # Shortcut: jump to 'agy' session
-    └── tmux-servers.conf.example    # Server list template
+    ├── tmux-connect.sh              # Multi-server → session menu     (macOS / Linux)
+    ├── tmux-claude.sh               # Shortcut: jump to 'claude'      (macOS / Linux)
+    ├── tmux-agy.sh                  # Shortcut: jump to 'agy'         (macOS / Linux)
+    ├── tmux-connect.ps1             # Multi-server → session menu     (Windows)
+    ├── tmux-claude.ps1              # Shortcut: jump to 'claude'      (Windows)
+    ├── tmux-agy.ps1                 # Shortcut: jump to 'agy'         (Windows)
+    └── tmux-servers.conf.example    # Server list template (shared)
 ```
 
 ---
@@ -147,6 +150,84 @@ alias tmux-agy='~/bin/tmux-agy.sh'
 EOF
 source ~/.zshrc
 ```
+
+---
+
+## Client Setup (Windows)
+
+> **Requirements:** Windows 10 1809 or later (OpenSSH client built in). PowerShell 5.1+ (included in all modern Windows installs).
+
+### 1. Allow PowerShell scripts (one-time)
+
+Open PowerShell **as Administrator** and run:
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+### 2. Clone the repo
+
+```powershell
+git clone https://github.com/pratikajmera/Tmux-Coding-Assistant-Setup.git
+cd Tmux-Coding-Assistant-Setup
+```
+
+### 3. Install scripts
+
+```powershell
+New-Item -ItemType Directory -Force "$HOME\bin" | Out-Null
+Copy-Item client\tmux-connect.ps1 "$HOME\bin\"
+Copy-Item client\tmux-claude.ps1  "$HOME\bin\"
+Copy-Item client\tmux-agy.ps1    "$HOME\bin\"
+```
+
+### 4. Add `$HOME\bin` to PATH
+
+```powershell
+$path = [Environment]::GetEnvironmentVariable("PATH", "User")
+if ($path -notlike "*$HOME\bin*") {
+    [Environment]::SetEnvironmentVariable("PATH", "$HOME\bin;$path", "User")
+}
+```
+
+Restart your terminal (or open a new window) for the PATH change to take effect.
+
+### 5. Configure servers
+
+```powershell
+Copy-Item client\tmux-servers.conf.example "$HOME\bin\tmux-servers.conf"
+notepad "$HOME\bin\tmux-servers.conf"
+```
+
+Use the same format as macOS/Linux:
+
+```
+# display_name | user | local_ip | tailscale_ip
+home-server | root | 192.168.1.100 | 100.x.x.x
+```
+
+> `tmux-servers.conf` is gitignored — never committed, always local.
+
+### 6. (Optional) Add PowerShell aliases
+
+Add to your PowerShell profile (`notepad $PROFILE`):
+
+```powershell
+Set-Alias tmux-connect "$HOME\bin\tmux-connect.ps1"
+Set-Alias tmux-claude  "$HOME\bin\tmux-claude.ps1"
+Set-Alias tmux-agy     "$HOME\bin\tmux-agy.ps1"
+```
+
+### Usage (Windows)
+
+```powershell
+tmux-connect                  # pick server → pick session
+tmux-connect home-server      # pick session on a specific server
+tmux-claude                   # jump straight to the 'claude' session
+tmux-agy home-server          # jump to 'agy' on a named server
+```
+
+> **Note:** If OpenSSH is not installed, enable it via **Settings → Apps → Optional Features → OpenSSH Client**, or install [Windows Terminal](https://aka.ms/terminal) which bundles it.
 
 ---
 
