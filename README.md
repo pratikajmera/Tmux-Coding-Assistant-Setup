@@ -18,7 +18,8 @@ Automated tmux session management for remote coding servers. Starts persistent, 
 │   ├── tmux-install.sh              # Run once on each new server (cleans up old install first)
 │   ├── tmux-start-sessions.sh       # Starts sessions (called by systemd)
 │   ├── tmux-sessions.service        # systemd unit file
-│   └── tmux-sessions.conf.example   # Session config template
+│   ├── tmux-sessions.conf.example   # Session config template
+│   └── tmux.conf                    # Default tmux config (deployed to ~/.tmux.conf)
 └── client/
     ├── tmux-connect.sh              # Multi-server → session menu     (macOS / Linux)
     ├── tmux-claude.sh               # Shortcut: jump to 'claude'      (macOS / Linux)
@@ -120,10 +121,27 @@ The installer will:
 1. Install tmux (if not already present)
 2. Create the session working directories
 3. Copy scripts to `/root/`
-4. Install and enable the systemd service
-5. Start all sessions immediately
+4. Deploy `server/tmux.conf` to `~/.tmux.conf` (backs up any existing config to `~/.tmux.conf.bak`)
+5. Install and enable the systemd service
+6. Start all sessions immediately
 
 > Safe to re-run — the cleanup step tears down the previous install before setting up fresh.
+
+### Default tmux config
+
+`server/tmux.conf` is installed to `~/.tmux.conf` on the server and includes:
+
+| Setting | Detail |
+|---------|--------|
+| Prefix key | `Ctrl+A` instead of `Ctrl+B` |
+| Mouse mode | Click to select panes, resize, scroll |
+| Base index | Windows and panes start at 1 |
+| Splits | `Prefix + \|` horizontal, `Prefix + -` vertical |
+| Pane navigation | `Alt + Arrow` (no prefix needed) |
+| Reload config | `Prefix + r` |
+| Scrollback | 50,000 lines |
+
+To customise, edit `~/.tmux.conf` on the server after install and run `Prefix + r` to reload, or edit `server/tmux.conf` in this repo before running the installer.
 
 ### 4. Verify
 

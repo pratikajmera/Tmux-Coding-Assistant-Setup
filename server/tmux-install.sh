@@ -118,14 +118,23 @@ while IFS='|' read -r name dir || [[ -n "$name" ]]; do
   ok "Created: $dir"
 done < "$SESSIONS_CONF"
 
-# ── 4. Install scripts ───────────────────────────────────────────────────────
+# ── 4. Install scripts and config ────────────────────────────────────────────
 
-header "Step 4: Installing scripts"
+header "Step 4: Installing scripts and config"
 cp "$SCRIPT_DIR/tmux-start-sessions.sh" "$INSTALL_DIR/tmux-start-sessions.sh"
 cp "$SESSIONS_CONF" "$INSTALL_DIR/tmux-sessions.conf"
 chmod +x "$INSTALL_DIR/tmux-start-sessions.sh"
 ok "Installed tmux-start-sessions.sh → $INSTALL_DIR/"
 ok "Installed tmux-sessions.conf → $INSTALL_DIR/"
+
+# Deploy tmux config — back up any existing one first
+TMUX_CONF="$HOME/.tmux.conf"
+if [[ -f "$TMUX_CONF" ]] && ! diff -q "$SCRIPT_DIR/tmux.conf" "$TMUX_CONF" &>/dev/null; then
+  cp "$TMUX_CONF" "${TMUX_CONF}.bak"
+  ok "Backed up existing ~/.tmux.conf → ~/.tmux.conf.bak"
+fi
+cp "$SCRIPT_DIR/tmux.conf" "$TMUX_CONF"
+ok "Installed tmux.conf → ~/.tmux.conf"
 
 # ── 5. Install systemd service ───────────────────────────────────────────────
 
